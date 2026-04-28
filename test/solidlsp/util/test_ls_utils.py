@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import hashlib
+import os
+import stat
+import zipfile
 from pathlib import Path
 from unittest.mock import patch
 
@@ -40,3 +43,31 @@ def test_download_file_verified_writes_decoded_response_body(tmp_path: Path) -> 
         )
 
     assert target_path.read_bytes() == payload
+
+
+def test_extract_zip_archive_overwrites_readonly_file(tmp_path: Path) -> None:
+    """Re-extracting a zip into a directory that already contains a read-only copy of the same
+    file (e.g. plugin jars from a prior vscode-java install where the zip stored 0o444 mode bits)
+    must succeed. Without unlinking first, ``open(..., "wb")`` fails with EACCES.
+    """
+    archive_path = tmp_path / "bundle.zip"
+    target_dir = tmp_path / "out"
+    target_dir.mkdir()
+
+    # Build a zip that stores the file with read-only Unix permissions, mirroring how
+    # vscode-java ships some of its server plugin jars (e.g. slf4j.api_*.jar).
+    info = zipfile.ZipInfo("plugin.jar")
+    info.create_system = 3  # ZIP_SYSTEM_UNIX
+    info.external_attr = (0o444 & 0o777) << 16
+    with zipfile.ZipFile(archive_path, "w") as archive:
+        archive.writestr(info, b"new contents")
+
+    # Pre-populate the target with a read-only file at the same relative path,
+    # simulating a stale install left over from an older bundle version.
+    stale_file = target_dir / "plugin.jar"
+    stale_file.write_bytes(b"old contents")
+    os.chmod(stale_file, stat.S_IREAD)
+
+    FileUtils._extract_zip_archive(str(archive_path), str(target_dir))
+
+    assert stale_file.read_bytes() == b"new contents"

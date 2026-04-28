@@ -396,6 +396,11 @@ class FileUtils:
                     continue
 
                 os.makedirs(os.path.dirname(extracted_path), exist_ok=True)
+                # Some VSIX archives (e.g. vscode-java) ship plugin jars with read-only mode bits.
+                # If a prior extraction already landed those files at the target path, opening them
+                # for write fails with EACCES — so unlink first and let the new file be created fresh.
+                if os.path.lexists(extracted_path):
+                    os.unlink(extracted_path)
                 with zip_ref.open(zip_info, "r") as source_file, open(extracted_path, "wb") as output_file:
                     shutil.copyfileobj(source_file, output_file)
 
