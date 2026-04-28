@@ -64,3 +64,18 @@ class TestJavaLanguageServer:
                 f"Found malformed symbols: {[format_symbol_for_assert(sym) for sym in malformed_symbols]}",
                 pytrace=False,
             )
+
+    @pytest.mark.parametrize("language_server", [Language.JAVA], indirect=True)
+    def test_lombok_generated_methods_visible_by_default(self, language_server: SolidLanguageServer) -> None:
+        """Generated Lombok methods (getX/setX/builder()) must appear in document symbols.
+
+        Default `lombok_show_generated=True` sends `java.symbols.includeGeneratedCode=true` to JDTLS,
+        which disables the SourceMethod-isGenerated filter in DocumentSymbolHandler. Without it,
+        find_symbol/get_symbols_overview cannot reach Lombok-synthesised methods at all.
+        """
+        file_path = os.path.join("src", "main", "java", "test_repo", "LombokModel.java")
+        doc = language_server.request_document_symbols(file_path)
+        method_names = {sym.get("name") for sym in doc.get_all_symbols_and_roots()[0] if sym.get("kind") == 6}
+        assert "getName" in method_names, f"Lombok @Data getter missing; found methods: {sorted(method_names)}"
+        assert "setName" in method_names, f"Lombok @Data setter missing; found methods: {sorted(method_names)}"
+        assert "builder" in method_names, f"Lombok @Builder factory missing; found methods: {sorted(method_names)}"

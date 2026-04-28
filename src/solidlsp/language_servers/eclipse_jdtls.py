@@ -33,11 +33,11 @@ GRADLE_ALLOWED_HOSTS = ("services.gradle.org", "github.com", "release-assets.git
 GRADLE_SHA256 = "7197a12f450794931532469d4ff21a59ea2c1cd59a3ec3f89c035c3c420a6999"
 VSCODE_JAVA_ALLOWED_HOSTS = ("github.com", "release-assets.githubusercontent.com", "objects.githubusercontent.com")
 VSCODE_JAVA_SHA256_BY_PLATFORM = {
-    "osx-arm64": "bc00c2699d4b8d478eb9a1621db9d6d3a12ea0dcc247a9cd8040e8ac19c03933",
-    "osx-x64": "03ae1db1a22c15561a620f1b722d6797d35d4faaa7c4666dbe6ca2715089852f",
-    "linux-arm64": "e15bc9b2a665d3453203402621b5441062aa41b0ec2d140661f439326fd248c1",
-    "linux-x64": "7660b7b527be6fda46a917966b34d828e7416d5cc84287b29b88e7b99c1737f9",
-    "win-x64": "ef195b45bd260976ad2e84618f4044b5d7248deed41d647573f0ee22c4233df3",
+    "osx-arm64": "c54c45cb0d2579d8e0a4ddeb24d4a9dd0b460d07d9366adea2b38a1da22a463c",
+    "osx-x64": "dfc98abc4e54165a78372e280242a039671729b1b03420608df3b10c6b629fb6",
+    "linux-arm64": "e2bb22c427d90da8dbb1afff72ff1e2dce38d50b76deb02d7bc313a330a1330c",
+    "linux-x64": "9d4b15da54e25a0192f9bac073f086c015397d3676623b68dbf83a5dbaf5132b",
+    "win-x64": "66f3914987edeccfee8a2558470e0fde4f8c4154232ff4baa5d73373ebc819d4",
 }
 INTELLICODE_ALLOWED_HOSTS = (
     "visualstudioexptteam.gallery.vsassets.io",
@@ -127,7 +127,7 @@ class EclipseJDTLS(SolidLanguageServer):
     ls_specific_settings:
       java:
         jdtls_path: "/opt/homebrew/Cellar/jdtls/1.50.0/libexec"  # or extracted tar.gz path
-        lombok_path: "/Users/me/.m2/repository/org/projectlombok/lombok/1.18.36/lombok-1.18.36.jar"
+        lombok_path: "/Users/me/.m2/repository/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar"
         # java_home: "/opt/homebrew/opt/openjdk@21"  # optional, JAVA_HOME env / PATH used otherwise
     ```
 
@@ -146,8 +146,9 @@ class EclipseJDTLS(SolidLanguageServer):
         jdtls_xms: "100m"  # initial heap size for the JDTLS server JVM
         intellicode_xmx: "1G"  # maximum heap size for the IntelliCode embedded JVM
         intellicode_xms: "100m"  # initial heap size for the IntelliCode embedded JVM
+        lombok_show_generated: true  # show Lombok-generated methods in document symbols (default true)
         gradle_version: "8.14.2"
-        vscode_java_version: "1.42.0-561"
+        vscode_java_version: "1.54.0-923"
         intellicode_version: "1.2.30"
     ```
     """
@@ -233,11 +234,11 @@ class EclipseJDTLS(SolidLanguageServer):
 
             platformId = PlatformUtils.get_platform_id()
             gradle_version = custom_settings.get("gradle_version", "8.14.2")
-            vscode_java_version = custom_settings.get("vscode_java_version", "1.42.0-561")
+            vscode_java_version = custom_settings.get("vscode_java_version", "1.54.0-923")
             vscode_java_tag = f"v{vscode_java_version.rsplit('-', 1)[0]}"
             intellicode_version = custom_settings.get("intellicode_version", "1.2.30")
             default_gradle_version = gradle_version == "8.14.2"
-            default_vscode_java_version = vscode_java_version == "1.42.0-561"
+            default_vscode_java_version = vscode_java_version == "1.54.0-923"
             default_intellicode_version = intellicode_version == "1.2.30"
 
             runtime_dependencies: dict[str, dict[str, dict[str, object]]] = {
@@ -264,10 +265,10 @@ class EclipseJDTLS(SolidLanguageServer):
                         "relative_extraction_path": "vscode-java",
                         "sha256": VSCODE_JAVA_SHA256_BY_PLATFORM["osx-arm64"] if default_vscode_java_version else None,
                         "allowed_hosts": VSCODE_JAVA_ALLOWED_HOSTS,
-                        "jre_home_path": "extension/jre/21.0.7-macosx-aarch64",
-                        "jre_path": "extension/jre/21.0.7-macosx-aarch64/bin/java",
-                        "lombok_jar_path": "extension/lombok/lombok-1.18.36.jar",
-                        "jdtls_launcher_jar_path": "extension/server/plugins/org.eclipse.equinox.launcher_1.7.0.v20250424-1814.jar",
+                        "jre_home_path": "extension/jre/21.0.10-macosx-aarch64",
+                        "jre_path": "extension/jre/21.0.10-macosx-aarch64/bin/java",
+                        "lombok_jar_path": "extension/lombok/lombok-1.18.39-4050.jar",
+                        "jdtls_launcher_jar_path": "extension/server/plugins/org.eclipse.equinox.launcher_1.7.100.v20251111-0406.jar",
                         "jdtls_readonly_config_path": "extension/server/config_mac_arm",
                     },
                     "osx-x64": {
@@ -276,10 +277,10 @@ class EclipseJDTLS(SolidLanguageServer):
                         "relative_extraction_path": "vscode-java",
                         "sha256": VSCODE_JAVA_SHA256_BY_PLATFORM["osx-x64"] if default_vscode_java_version else None,
                         "allowed_hosts": VSCODE_JAVA_ALLOWED_HOSTS,
-                        "jre_home_path": "extension/jre/21.0.7-macosx-x86_64",
-                        "jre_path": "extension/jre/21.0.7-macosx-x86_64/bin/java",
-                        "lombok_jar_path": "extension/lombok/lombok-1.18.36.jar",
-                        "jdtls_launcher_jar_path": "extension/server/plugins/org.eclipse.equinox.launcher_1.7.0.v20250424-1814.jar",
+                        "jre_home_path": "extension/jre/21.0.10-macosx-x86_64",
+                        "jre_path": "extension/jre/21.0.10-macosx-x86_64/bin/java",
+                        "lombok_jar_path": "extension/lombok/lombok-1.18.39-4050.jar",
+                        "jdtls_launcher_jar_path": "extension/server/plugins/org.eclipse.equinox.launcher_1.7.100.v20251111-0406.jar",
                         "jdtls_readonly_config_path": "extension/server/config_mac",
                     },
                     "linux-arm64": {
@@ -288,10 +289,10 @@ class EclipseJDTLS(SolidLanguageServer):
                         "relative_extraction_path": "vscode-java",
                         "sha256": VSCODE_JAVA_SHA256_BY_PLATFORM["linux-arm64"] if default_vscode_java_version else None,
                         "allowed_hosts": VSCODE_JAVA_ALLOWED_HOSTS,
-                        "jre_home_path": "extension/jre/21.0.7-linux-aarch64",
-                        "jre_path": "extension/jre/21.0.7-linux-aarch64/bin/java",
-                        "lombok_jar_path": "extension/lombok/lombok-1.18.36.jar",
-                        "jdtls_launcher_jar_path": "extension/server/plugins/org.eclipse.equinox.launcher_1.7.0.v20250424-1814.jar",
+                        "jre_home_path": "extension/jre/21.0.10-linux-aarch64",
+                        "jre_path": "extension/jre/21.0.10-linux-aarch64/bin/java",
+                        "lombok_jar_path": "extension/lombok/lombok-1.18.39-4050.jar",
+                        "jdtls_launcher_jar_path": "extension/server/plugins/org.eclipse.equinox.launcher_1.7.100.v20251111-0406.jar",
                         "jdtls_readonly_config_path": "extension/server/config_linux_arm",
                     },
                     "linux-x64": {
@@ -300,10 +301,10 @@ class EclipseJDTLS(SolidLanguageServer):
                         "relative_extraction_path": "vscode-java",
                         "sha256": VSCODE_JAVA_SHA256_BY_PLATFORM["linux-x64"] if default_vscode_java_version else None,
                         "allowed_hosts": VSCODE_JAVA_ALLOWED_HOSTS,
-                        "jre_home_path": "extension/jre/21.0.7-linux-x86_64",
-                        "jre_path": "extension/jre/21.0.7-linux-x86_64/bin/java",
-                        "lombok_jar_path": "extension/lombok/lombok-1.18.36.jar",
-                        "jdtls_launcher_jar_path": "extension/server/plugins/org.eclipse.equinox.launcher_1.7.0.v20250424-1814.jar",
+                        "jre_home_path": "extension/jre/21.0.10-linux-x86_64",
+                        "jre_path": "extension/jre/21.0.10-linux-x86_64/bin/java",
+                        "lombok_jar_path": "extension/lombok/lombok-1.18.39-4050.jar",
+                        "jdtls_launcher_jar_path": "extension/server/plugins/org.eclipse.equinox.launcher_1.7.100.v20251111-0406.jar",
                         "jdtls_readonly_config_path": "extension/server/config_linux",
                     },
                     "win-x64": {
@@ -312,10 +313,10 @@ class EclipseJDTLS(SolidLanguageServer):
                         "relative_extraction_path": "vscode-java",
                         "sha256": VSCODE_JAVA_SHA256_BY_PLATFORM["win-x64"] if default_vscode_java_version else None,
                         "allowed_hosts": VSCODE_JAVA_ALLOWED_HOSTS,
-                        "jre_home_path": "extension/jre/21.0.7-win32-x86_64",
-                        "jre_path": "extension/jre/21.0.7-win32-x86_64/bin/java.exe",
-                        "lombok_jar_path": "extension/lombok/lombok-1.18.36.jar",
-                        "jdtls_launcher_jar_path": "extension/server/plugins/org.eclipse.equinox.launcher_1.7.0.v20250424-1814.jar",
+                        "jre_home_path": "extension/jre/21.0.10-win32-x86_64",
+                        "jre_path": "extension/jre/21.0.10-win32-x86_64/bin/java.exe",
+                        "lombok_jar_path": "extension/lombok/lombok-1.18.39-4050.jar",
+                        "jdtls_launcher_jar_path": "extension/server/plugins/org.eclipse.equinox.launcher_1.7.100.v20251111-0406.jar",
                         "jdtls_readonly_config_path": "extension/server/config_win",
                     },
                 },
@@ -818,6 +819,13 @@ class EclipseJDTLS(SolidLanguageServer):
         intellicode_xmx = self._custom_settings.get("intellicode_xmx", "1G")
         intellicode_xms = self._custom_settings.get("intellicode_xms", "100m")
 
+        # Lombok-generated symbols (getX/setX/builder()/equals/hashCode/toString/...): JDTLS filters these
+        # out of documentSymbol results by default. Without them, find_symbol/get_symbols_overview return
+        # only user-written sources, which breaks navigation around @Data/@Builder/@Getter/@Setter classes.
+        # Default to True so agentic workflows can find_symbol → replace_symbol_body on generated members.
+        # Requires JDTLS commit b2d8952 or newer (vscode-java >= v1.53.0). See eclipse-jdtls/eclipse.jdt.ls#3706.
+        lombok_show_generated = self._custom_settings.get("lombok_show_generated", True)
+
         # Gradle wrapper: default to False to preserve existing behaviour
         gradle_wrapper_enabled = self._custom_settings.get("gradle_wrapper_enabled", False)
         log.info(
@@ -1032,7 +1040,7 @@ class EclipseJDTLS(SolidLanguageServer):
                             },
                             "workspaceCacheLimit": 90,
                             "runtimes": [
-                                {"name": "JavaSE-21", "path": "static/vscode-java/extension/jre/21.0.7-linux-x86_64", "default": True}
+                                {"name": "JavaSE-21", "path": "static/vscode-java/extension/jre/21.0.10-linux-x86_64", "default": True}
                             ],
                         },
                         "trace": {"server": "verbose"},
@@ -1097,7 +1105,10 @@ class EclipseJDTLS(SolidLanguageServer):
                         "references": {"includeAccessors": True, "includeDecompiledSources": True},
                         "typeHierarchy": {"lazyLoad": False},
                         "settings": {"url": None},
-                        "symbols": {"includeSourceMethodDeclarations": False},
+                        "symbols": {
+                            "includeSourceMethodDeclarations": False,
+                            "includeGeneratedCode": lombok_show_generated,
+                        },
                         "inlayHints": {"parameterNames": {"enabled": "literals", "exclusions": []}},
                         "codeAction": {"sortMembers": {"avoidVolatileChanges": True}},
                         "compile": {
